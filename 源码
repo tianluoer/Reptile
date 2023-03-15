@@ -1,0 +1,29 @@
+import requests
+from bs4 import BeautifulSoup
+
+# 网站的基础URL和视频列表页码
+base_url = 'https://www.pixtv.co.jp'
+page_num = 1
+
+# 循环遍历页面，直到没有更多的视频
+while True:
+    # 构造页面URL
+    url = f'{base_url}/program/list?page={page_num}'
+    
+    # 发送请求，获取页面内容
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    
+    # 检查页面是否存在视频列表
+    list_div = soup.find('div', {'class': 'program-list'})
+    if not list_div:
+        break
+        
+    # 遍历视频列表，输出视频标题和URL
+    for program in list_div.find_all('div', {'class': 'program-list-item'}):
+        title = program.find('h3', {'class': 'program-list-item-title'}).text
+        url = base_url + program.find('a')['href']
+        print(title, url)
+        
+    # 增加页面计数器，继续遍历下一页
+    page_num += 1
